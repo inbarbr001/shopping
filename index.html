@@ -2,6 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <title>רכישת כרטיסים - Tracker Mode</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
@@ -23,7 +24,7 @@
         <h2 style="margin-top: 0; color: #333;">רכישת כרטיס</h2>
         
         <div style="margin-bottom: 25px; text-align: right;">
-            <label for="orderEmail" style="font-size: 14px; font-weight: bold; color: #555;">אימייל לזיהוי וקבלת הכרטיס:</label>
+            <label for="orderEmail" style="font-size: 14px; font-weight: bold; color: #555;">אימייל לזיהוי:</label>
             <input type="email" id="orderEmail" placeholder="your@email.com" 
                    style="width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; box-sizing: border-box; margin-top: 5px; font-size: 16px;">
         </div>
@@ -49,7 +50,28 @@
         const PRICE_PER_UNIT = 150;
         let currentQty = 1;
 
-        // טעינה אוטומטית של המייל מהזיכרון
+        // --- אובייקט ה-TRACKER החדש ---
+        const tracker = {
+            logRegisterUser: (email) => {
+                // שימוש במבנה המלא שדיברנו עליו לזיהוי מקסימלי
+                _atsc_paq.push(['logRegisterUser', '', '', email, '', {}]);
+                console.log("Tracker: User Registered -> " + email);
+            },
+            addEcommerceItem: (sku, name, category, price, quantity) => {
+                _atsc_paq.push(['addEcommerceItem', sku, name, category, price, quantity]);
+                console.log("Tracker: Item Added -> " + sku);
+            },
+            trackEcommerceCartUpdate: (total) => {
+                _atsc_paq.push(['trackEcommerceCartUpdate', total]);
+                console.log("Tracker: Cart Updated -> " + total);
+            },
+            trackEcommerceOrder: (orderId, total) => {
+                // ID, סה"כ, סכום ביניים, מס, משלוח, הנחה
+                _atsc_paq.push(['trackEcommerceOrder', orderId, total, total, 0, 0, 0]);
+                console.log("Tracker: Order Sent -> " + orderId);
+            }
+        };
+
         window.onload = function() {
             const savedEmail = localStorage.getItem('user_email');
             if (savedEmail) {
@@ -66,40 +88,40 @@
             }
         }
 
-    function addToCart() {
-    let email = document.getElementById('orderEmail').value;
-    if (!email.includes('@')) {
-        alert("נא להזין מייל תקין");
-        return;
-    }
-    
-    localStorage.setItem('user_email', email);
-    let finalTotal = currentQty * PRICE_PER_UNIT;
+        function addToCart() {
+            let email = document.getElementById('orderEmail').value;
+            if (!email.includes('@')) {
+                alert("נא להזין מייל תקין");
+                return;
+            }
+            
+            localStorage.setItem('user_email', email);
+            let finalTotal = currentQty * PRICE_PER_UNIT;
 
-    // שימוש ב-Tracker החדש
-    tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
-    tracker.trackEcommerceCartUpdate(finalTotal);
-    
-    document.getElementById('buyBtn').style.display = 'block';
-    console.log("Cart updated for: " + email);
-}
+            // שימוש ב-Tracker
+            tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
+            tracker.trackEcommerceCartUpdate(finalTotal);
+            
+            document.getElementById('buyBtn').style.display = 'block';
+            alert("הסל עודכן עבור " + email);
+        }
 
-function completePurchase() {
-    let emailValue = document.getElementById('orderEmail').value;
-    let finalTotal = currentQty * PRICE_PER_UNIT;
-    let orderId = 'ORD-' + Date.now();
+        function completePurchase() {
+            let emailValue = document.getElementById('orderEmail').value;
+            let finalTotal = currentQty * PRICE_PER_UNIT;
+            let orderId = 'ORD-' + Date.now();
 
-    // 1. זיהוי משתמש
-    tracker.logRegisterUser(emailValue);
+            // 1. זיהוי משתמש (Register)
+            tracker.logRegisterUser(emailValue);
 
-    // 2. הוספת פריט להזמנה
-    tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
-    
-    // 3. שליחת ההזמנה הסופית
-    tracker.trackEcommerceOrder(orderId, finalTotal, finalTotal, 0, 0, 0);
+            // 2. הוספת פריט להזמנה
+            tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
+            
+            // 3. שליחת ההזמנה הסופית
+            tracker.trackEcommerceOrder(orderId, finalTotal);
 
-    alert("הרכישה הושלמה! Tracker שלח את כל הנתונים.");
-}
+            alert("הרכישה הושלמה! Tracker שלח את כל הנתונים עבור: " + emailValue);
+        }
     </script>
 </body>
 </html>
