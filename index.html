@@ -2,54 +2,68 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <title>חנות כרטיסים - בדיקת פיקסל</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
-            var p = new URLSearchParams(window.location.search);
             _atsc_paq.push(['setCookieDomain', 'atsc.activetrail.com']);
             _atsc_paq.push(['setSiteId', 'c4f20e41-9e9b-48e7-a483-76ada61a6fbd']);
+            
+            // זיהוי אוטומטי לפי הדוקומנטציה - שימוש במזהה המערכת
+            _atsc_paq.push(['setUserId', '_atscid']); 
+            
             _atsc_paq.push(['setTrackerUrl', '//atsc.activetrail.com/api/Track3']);
-            if (p.get('email')) { _atsc_paq.push(['setUserId', p.get('email')]); }
             _atsc_paq.push(['trackPageView']);
+            
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
             g.type='text/javascript'; g.async=true; g.defer=true; g.src='//atsc.activetrail.com/Scripts/atsc3.min.js';
             s.parentNode.insertBefore(g,s);
         })();
     </script>
 </head>
-<body style="font-family: Arial; text-align: center; padding: 50px;">
-    <h1>בדיקת זרימת אוטומציה - אקטיב טרייל</h1>
-    
-    <button onclick="identifyUser()" style="display:block; width:200px; margin:10px auto; padding:15px; background:blue; color:white;">1. בצע כניסה (Login)</button>
-    <button onclick="addToCart()" style="display:block; width:200px; margin:10px auto; padding:15px; background:orange; color:white;">2. הוסף כרטיסים לסל</button>
-    <button onclick="completePurchase()" style="display:block; width:200px; margin:10px auto; padding:15px; background:green; color:white;">3. בצע רכישה סופית</button>
+<body style="font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+
+    <div style="background: white; width: 300px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <img src="https://via.placeholder.com/150" alt="כרטיס" style="width: 100%; border-radius: 5px;">
+        <h2>כרטיס להופעה חיה</h2>
+        <p style="font-size: 24px; font-weight: bold;">150 ש"ח</p>
+        
+        <button onclick="addToCart()" style="width: 100%; padding: 12px; background: #ff9900; color: white; border: none; cursor: pointer; font-weight: bold; margin-bottom: 10px;">הוספה לסל</button>
+        
+        <button id="buyBtn" onclick="completePurchase()" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; display: none;">רכוש עכשיו</button>
+    </div>
 
     <script>
-        // 1. זיהוי משתמש
-        function identifyUser() {
-            var email = new URLSearchParams(window.location.search).get('email') || "test@test.com";
-            _atsc_paq.push(['setUserId', email]);
-            alert("שלב 1: המשתמש " + email + " זוהה במערכת");
-        }
+        const product = {
+            sku: 'TICKET-101',
+            name: 'כרטיס להופעה',
+            category: 'אירועים',
+            price: 150
+        };
 
-        // 2. עדכון סל קניות (טריגר לעגלה נטושה באקטיב טרייל)
         function addToCart() {
-            _atsc_paq.push(['trackEcommerceCartUpdate', 150]); 
-            alert("שלב 2: הכרטיסים נוספו לסל (150 ש''ח)");
+            // עדכון סל באקטיב טרייל
+            _atsc_paq.push(['trackEcommerceCartUpdate', product.price]);
+            
+            // שינוי ויזואלי בדף
+            document.getElementById('buyBtn').style.display = 'block';
+            alert("הכרטיס נוסף לסל. הפיקסל עדכן 'עגלה נטושה' (במידה ולא תרכוש)");
         }
 
-        // 3. ביצוע רכישה (טריגר לסיום רכישה באקטיב טרייל)
         function completePurchase() {
-            var orderId = 'ORD-' + Date.now();
-            var price = 150;
+            var orderId = 'ORD-' + Math.floor(Math.random() * 1000000);
 
-            // שליחת פריט ספציפי (חשוב לאוטומציה לפי מוצר)
-            _atsc_paq.push(['addEcommerceItem', 'SKU-TICKET', 'כרטיס להופעה', 'כרטיסים', price, 1]);
+            // הוספת הפריט להזמנה לפי הדוקומנטציה
+            _atsc_paq.push(['addEcommerceItem', product.sku, product.name, product.category, product.price, 1]);
             
-            // שליחת ההזמנה הכוללת
-            _atsc_paq.push(['trackEcommerceOrder', orderId, price]);
+            // שליחת פקודת רכישה סופית
+            _atsc_paq.push(['trackEcommerceOrder', orderId, product.price]);
 
-            alert("שלב 3: הרכישה הושלמה בהצלחה!\nמספר הזמנה: " + orderId);
+            // פופ-אפ אישור רכישה
+            alert("תודה רבה! הרכישה בוצעה.\nמספר הזמנה: " + orderId + "\nהנתונים נשלחו לאקטיב טרייל.");
+            
+            // איפוס ויזואלי
+            document.getElementById('buyBtn').style.display = 'none';
         }
     </script>
 </body>
