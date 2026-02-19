@@ -2,7 +2,6 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>רכישת כרטיסים</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
@@ -17,57 +16,56 @@
         })();
     </script>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 50px;">
+<body style="font-family: Arial; text-align: center; padding: 50px; background-color: #f9f9f9;">
 
-    <div style="border: 1px solid #ddd; padding: 20px; width: 250px; margin: 0 auto; border-radius: 10px;">
-        <h3>כרטיס להופעה</h3>
-        <p>מחיר יחידה: 150 ש"ח</p>
+    <div style="background: white; border: 1px solid #ddd; padding: 30px; width: 300px; margin: 0 auto; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 0;">כרטיס להופעה</h2>
+        <p style="color: #666;">מחיר ליחידה: 150 ש"ח</p>
         
-        <div style="margin: 20px 0;">
-            <button onclick="changeQty(-1)" style="width: 40px; height: 40px; cursor: pointer;">-</button>
-            <span id="qty" style="font-size: 20px; margin: 0 15px; font-weight: bold;">1</span>
-            <button onclick="changeQty(1)" style="width: 40px; height: 40px; cursor: pointer;">+</button>
+        <div style="display: flex; align-items: center; justify-content: center; margin: 25px 0;">
+            <button onclick="updateQty(-1)" style="width: 45px; height: 45px; font-size: 24px; cursor: pointer; border: 1px solid #ccc; background: #eee; border-radius: 5px;">-</button>
+            <input type="number" id="qtyInput" value="1" min="1" max="10" readonly style="width: 60px; text-align: center; font-size: 20px; border: none; font-weight: bold;">
+            <button onclick="updateQty(1)" style="width: 45px; height: 45px; font-size: 24px; cursor: pointer; border: 1px solid #ccc; background: #eee; border-radius: 5px;">+</button>
         </div>
 
-        <p>סה"כ: <span id="totalDisplay">150</span> ש"ח</p>
+        <div style="font-size: 22px; margin-bottom: 20px;">
+            סה"כ לתשלום: <span id="livePrice" style="color: #28a745; font-weight: bold;">150</span> ₪
+        </div>
         
-        <button onclick="addToCart()" style="width: 100%; padding: 10px; background: orange; color: white; border: none; cursor: pointer; font-weight: bold; margin-bottom: 10px;">הוספה לסל</button>
-        <button id="buyBtn" onclick="completePurchase()" style="width: 100%; padding: 10px; background: green; color: white; border: none; cursor: pointer; font-weight: bold; display: none;">בצע רכישה</button>
+        <button onclick="addToCart()" style="width: 100%; padding: 15px; background: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold;">הוספה לסל</button>
+        <button id="buyBtn" onclick="completePurchase()" style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; display: none;">בצע רכישה</button>
     </div>
 
     <script>
-        let quantity = 1;
-        const unitPrice = 150;
+        const PRICE_PER_UNIT = 150;
+        let currentQty = 1;
 
-        function changeQty(val) {
-            let newQty = quantity + val;
+        // עדכון המחיר בלייב
+        function updateQty(change) {
+            let newQty = currentQty + change;
             if (newQty >= 1 && newQty <= 10) {
-                quantity = newQty;
-                document.getElementById('qty').innerText = quantity;
-                document.getElementById('totalDisplay').innerText = quantity * unitPrice;
+                currentQty = newQty;
+                document.getElementById('qtyInput').value = currentQty;
+                document.getElementById('livePrice').innerText = currentQty * PRICE_PER_UNIT;
             }
         }
 
         function addToCart() {
-            let totalPrice = quantity * unitPrice;
-            // שליחת עדכון סל לפיקסל
-            _atsc_paq.push(['trackEcommerceCartUpdate', totalPrice]);
+            let finalTotal = currentQty * PRICE_PER_UNIT;
+            _atsc_paq.push(['trackEcommerceCartUpdate', finalTotal]);
             
             document.getElementById('buyBtn').style.display = 'block';
-            alert("הוספת " + quantity + " כרטיסים לסל. סה\"כ: " + totalPrice + " ש\"ח");
+            alert("הסל עודכן: " + currentQty + " כרטיסים ב-" + finalTotal + " ש\"ח");
         }
 
         function completePurchase() {
-            let totalPrice = quantity * unitPrice;
+            let finalTotal = currentQty * PRICE_PER_UNIT;
             let orderId = 'ORD-' + Date.now();
 
-            // שליחת פריט (כמות ומחיר)
-            _atsc_paq.push(['addEcommerceItem', 'TICKET-01', 'כרטיס הופעה', 'כרטיסים', unitPrice, quantity]);
-            
-            // שליחת הזמנה סופית
-            _atsc_paq.push(['trackEcommerceOrder', orderId, totalPrice]);
+            _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
+            _atsc_paq.push(['trackEcommerceOrder', orderId, finalTotal]);
 
-            alert("נרכש בהצלחה!\nכמות: " + quantity + "\nסה\"כ: " + totalPrice + " ש\"ח");
+            alert("בוצע! פופ-אפ אישור: נרכשו " + currentQty + " כרטיסים.");
             document.getElementById('buyBtn').style.display = 'none';
         }
     </script>
