@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דף תשלום - Netlify</title>
+ <script type='text/javascript'>
+    var _atsc_paq = _atsc_paq || [];
+    
+    // מצב Debug עוזר לנו לראות שהשגיאה נעלמה
+
+
+    (function () {
+        // התיקון הקריטי: אנחנו אומרים לפיקסל להשתמש בדומיין הנוכחי (Netlify) 
+        // במקום לנסות לכתוב עוגיות על הדומיין של אקטיב טרייל
+        _atsc_paq.push(['setCookieDomain', window.location.hostname]);
+
+        _atsc_paq.push(['setSiteId', 'c8d328a6-f0a2-4846-b373-ed2051ab37ba']);
+        _atsc_paq.push(['setUserId', '_atscid']);
+        _atsc_paq.push(['setTrackerUrl', '//atsc.activetrail.com/api/Track3']);
+        _atsc_paq.push(['setDebugMode', true]); 
+        _atsc_paq.push(['trackPageView']);
+        
+
+        var atsc_d = document, atsc_g = atsc_d.createElement('script'), atsc_s = atsc_d.getElementsByTagName('script')[0]; 
+        atsc_g.type = 'text/javascript'; atsc_g.async = true; atsc_g.defer = true; 
+        atsc_g.src = '//atsc.activetrail.com/Scripts/atsc3.min.js'; 
+        atsc_s.parentNode.insertBefore(atsc_g, atsc_s);
+    })();
+</script>
+</head>
+<body style="background:#fff4e5; text-align:center; padding:50px; font-family: sans-serif;">
+    <h1>שלב 2: דף תשלום סופי</h1>
+    <div style="background:white; padding:30px; display:inline-block; border-radius:10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 id="welcome-msg">מעבד נתונים...</h2>
+        <p id="price-display">טוען מחיר...</p>
+        <button onclick="completePurchase()" id="buy-btn" style="background:#42b72a; color:white; border:none; padding:15px 30px; cursor:pointer; font-size: 18px; display:none;">
+            אשר רכישה ושלח לי סמס
+        </button>
+    </div>
+
+    <script>
+        // שליפת פרמטרים מה-URL
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('email');
+        const extId = params.get('extId');
+        const extName = params.get('extName') || "Customer";
+        const orderPrice = params.get('price') || "250";
+        const orderQty = parseInt(params.get('qty')) || 1;
+
+        if (email && extId) {
+            _atsc_paq.push(['logRegisterUser', extId, extName, email, null, { domain_bridge: 'Success' }]);
+
+            document.getElementById('welcome-msg').innerText = "משלם עבור: " + email;
+
+            const unitPrice = parseFloat(orderPrice);
+            const displayTotal = unitPrice * orderQty;
+            document.getElementById('price-display').innerText = "סכום לתשלום: " + displayTotal + " EUR (כמות: " + orderQty + ")";
+
+            document.getElementById('buy-btn').style.display = "inline-block";
+        }
+
+        function completePurchase() {
+            // שימוש בטרקר ישיר (Direct Instance) לפי הדוקומנטציה
+           var tracker = Atsc.getTracker('//atsc.activetrail.com/api/Track3', 'c8d328a6-f0a2-4846-b373-ed2051ab37ba');
+             tracker.setDebugMode(true);
+            const orderId = 'ORD-' + Date.now();
+            const unitPrice = parseFloat(orderPrice);
+            const totalRevenue = unitPrice * orderQty;
+            const now = new Date().toISOString();
+
+            // 1. הוספת המוצר לסל (חובה לפי המתכנת)
+            tracker.addEcommerceItem(
+                'PROD-001',         // productId
+                'General Product',  // productName
+                'Main Category',    // category
+                unitPrice,          // unit price
+                orderQty            // quantity
+            );
+
+            // 2. הזרקת נתונים נוספים (תאריך, מייל וכמות כוללת)
+            tracker.setCustomData({
+                Date1: now,
+                email: email,
+                quantity: orderQty, 
+                currency: 'EUR',
+                status: 'completed'
+            });
+
+            // 3. שליחת ההזמנה הסופית
+            tracker.trackEcommerceOrder(
+                orderId,
+                totalRevenue, 
+                totalRevenue, 
+                0, 0, 0
+            );
+
+            console.log("Sent Order via Direct Tracker:", orderId, "Qty:", orderQty);
+            alert("הרכישה דווחה בהצלחה! בדוק את הקונסול לנתוני Debug.");
+        }
+    </script>
+</body>
+</html>
