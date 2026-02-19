@@ -66,40 +66,40 @@
             }
         }
 
-        function addToCart() {
-            let email = document.getElementById('orderEmail').value;
-            if (!email.includes('@')) {
-                alert("קודם כל, בוא נזין מייל תקין בשדה למעלה :)");
-                return;
-            }
-            
-            // שמירה בזיכרון
-            localStorage.setItem('user_email', email);
+    function addToCart() {
+    let email = document.getElementById('orderEmail').value;
+    if (!email.includes('@')) {
+        alert("נא להזין מייל תקין");
+        return;
+    }
+    
+    localStorage.setItem('user_email', email);
+    let finalTotal = currentQty * PRICE_PER_UNIT;
 
-            let finalTotal = currentQty * PRICE_PER_UNIT;
-            _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
-            _atsc_paq.push(['trackEcommerceCartUpdate', finalTotal]);
-            
-            document.getElementById('buyBtn').style.display = 'block';
-            alert("הסל עודכן עבור " + email);
-        }
+    // שימוש ב-Tracker החדש
+    tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
+    tracker.trackEcommerceCartUpdate(finalTotal);
+    
+    document.getElementById('buyBtn').style.display = 'block';
+    console.log("Cart updated for: " + email);
+}
 
-        function completePurchase() {
-            let emailValue = document.getElementById('orderEmail').value;
-            let finalTotal = currentQty * PRICE_PER_UNIT;
-            let orderId = 'ORD-' + Date.now();
+function completePurchase() {
+    let emailValue = document.getElementById('orderEmail').value;
+    let finalTotal = currentQty * PRICE_PER_UNIT;
+    let orderId = 'ORD-' + Date.now();
 
-            // 1. זיהוי המשתמש - מחבר את המייל לפיקסל בזמן אמת
-            _atsc_paq.push(['logRegisterUser', '', '', emailValue]);
+    // 1. זיהוי משתמש
+    tracker.logRegisterUser(emailValue);
 
-            // 2. שליחת הפריט
-            _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
-            
-            // 3. שליחת ההזמנה
-            _atsc_paq.push(['trackEcommerceOrder', orderId, finalTotal, finalTotal, 0, 0, 0]);
+    // 2. הוספת פריט להזמנה
+    tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
+    
+    // 3. שליחת ההזמנה הסופית
+    tracker.trackEcommerceOrder(orderId, finalTotal, finalTotal, 0, 0, 0);
 
-            alert("מעולה! הרכישה נשלחה. אקטיב טרייל מזהה עכשיו את: " + emailValue);
-        }
+    alert("הרכישה הושלמה! Tracker שלח את כל הנתונים.");
+}
     </script>
 </body>
 </html>
