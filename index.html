@@ -69,22 +69,24 @@ if (userEmail) {
     alert("הסל עודכן במערכת עם " + currentQty + " כרטיסים.");
 }
 
-     function completePurchase() {
+function completePurchase() {
     let finalTotal = currentQty * PRICE_PER_UNIT;
     let orderId = 'ORD-' + Date.now();
 
-    // שליחת הפריט
+    // 1. זיהוי המשתמש - זה השלב שחסר לך כדי להפעיל את האוטומציה
+    _atsc_paq.push(['logRegisterUser', '', '', 'INBARBR001@GMAIL.COM']);
+
+    // 2. שליחת הפריט
     _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
     
-    // שליחת ההזמנה עם כל הפרמטרים כדי למנוע undefined
-    // סדר: ID, סה"כ, סכום ביניים, מס, משלוח, הנחה
+    // 3. שליחת ההזמנה
     _atsc_paq.push(['trackEcommerceOrder', 
         orderId,    // ec_id
         finalTotal, // revenue
-        finalTotal, // ec_st (סכום ביניים)
-        0,          // ec_tx (מס)
-        0,          // ec_sh (משלוח)
-        0           // ec_dt (הנחה - כאן הופיע לך ה-undefined)
+        finalTotal, // ec_st
+        0,          // ec_tx
+        0,          // ec_sh
+        0           // ec_dt
     ]);
 
     alert("הרכישה נשלחה בהצלחה!");
