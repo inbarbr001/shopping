@@ -2,67 +2,72 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>חנות כרטיסים - בדיקת פיקסל</title>
+    <title>רכישת כרטיסים</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
             _atsc_paq.push(['setCookieDomain', 'atsc.activetrail.com']);
             _atsc_paq.push(['setSiteId', 'c4f20e41-9e9b-48e7-a483-76ada61a6fbd']);
-            
-            // זיהוי אוטומטי לפי הדוקומנטציה - שימוש במזהה המערכת
             _atsc_paq.push(['setUserId', '_atscid']); 
-            
             _atsc_paq.push(['setTrackerUrl', '//atsc.activetrail.com/api/Track3']);
             _atsc_paq.push(['trackPageView']);
-            
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
             g.type='text/javascript'; g.async=true; g.defer=true; g.src='//atsc.activetrail.com/Scripts/atsc3.min.js';
             s.parentNode.insertBefore(g,s);
         })();
     </script>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+<body style="font-family: sans-serif; text-align: center; padding: 50px;">
 
-    <div style="background: white; width: 300px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <img src="https://via.placeholder.com/150" alt="כרטיס" style="width: 100%; border-radius: 5px;">
-        <h2>כרטיס להופעה חיה</h2>
-        <p style="font-size: 24px; font-weight: bold;">150 ש"ח</p>
+    <div style="border: 1px solid #ddd; padding: 20px; width: 250px; margin: 0 auto; border-radius: 10px;">
+        <h3>כרטיס להופעה</h3>
+        <p>מחיר יחידה: 150 ש"ח</p>
         
-        <button onclick="addToCart()" style="width: 100%; padding: 12px; background: #ff9900; color: white; border: none; cursor: pointer; font-weight: bold; margin-bottom: 10px;">הוספה לסל</button>
+        <div style="margin: 20px 0;">
+            <button onclick="changeQty(-1)" style="width: 40px; height: 40px; cursor: pointer;">-</button>
+            <span id="qty" style="font-size: 20px; margin: 0 15px; font-weight: bold;">1</span>
+            <button onclick="changeQty(1)" style="width: 40px; height: 40px; cursor: pointer;">+</button>
+        </div>
+
+        <p>סה"כ: <span id="totalDisplay">150</span> ש"ח</p>
         
-        <button id="buyBtn" onclick="completePurchase()" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; display: none;">רכוש עכשיו</button>
+        <button onclick="addToCart()" style="width: 100%; padding: 10px; background: orange; color: white; border: none; cursor: pointer; font-weight: bold; margin-bottom: 10px;">הוספה לסל</button>
+        <button id="buyBtn" onclick="completePurchase()" style="width: 100%; padding: 10px; background: green; color: white; border: none; cursor: pointer; font-weight: bold; display: none;">בצע רכישה</button>
     </div>
 
     <script>
-        const product = {
-            sku: 'TICKET-101',
-            name: 'כרטיס להופעה',
-            category: 'אירועים',
-            price: 150
-        };
+        let quantity = 1;
+        const unitPrice = 150;
+
+        function changeQty(val) {
+            let newQty = quantity + val;
+            if (newQty >= 1 && newQty <= 10) {
+                quantity = newQty;
+                document.getElementById('qty').innerText = quantity;
+                document.getElementById('totalDisplay').innerText = quantity * unitPrice;
+            }
+        }
 
         function addToCart() {
-            // עדכון סל באקטיב טרייל
-            _atsc_paq.push(['trackEcommerceCartUpdate', product.price]);
+            let totalPrice = quantity * unitPrice;
+            // שליחת עדכון סל לפיקסל
+            _atsc_paq.push(['trackEcommerceCartUpdate', totalPrice]);
             
-            // שינוי ויזואלי בדף
             document.getElementById('buyBtn').style.display = 'block';
-            alert("הכרטיס נוסף לסל. הפיקסל עדכן 'עגלה נטושה' (במידה ולא תרכוש)");
+            alert("הוספת " + quantity + " כרטיסים לסל. סה\"כ: " + totalPrice + " ש\"ח");
         }
 
         function completePurchase() {
-            var orderId = 'ORD-' + Math.floor(Math.random() * 1000000);
+            let totalPrice = quantity * unitPrice;
+            let orderId = 'ORD-' + Date.now();
 
-            // הוספת הפריט להזמנה לפי הדוקומנטציה
-            _atsc_paq.push(['addEcommerceItem', product.sku, product.name, product.category, product.price, 1]);
+            // שליחת פריט (כמות ומחיר)
+            _atsc_paq.push(['addEcommerceItem', 'TICKET-01', 'כרטיס הופעה', 'כרטיסים', unitPrice, quantity]);
             
-            // שליחת פקודת רכישה סופית
-            _atsc_paq.push(['trackEcommerceOrder', orderId, product.price]);
+            // שליחת הזמנה סופית
+            _atsc_paq.push(['trackEcommerceOrder', orderId, totalPrice]);
 
-            // פופ-אפ אישור רכישה
-            alert("תודה רבה! הרכישה בוצעה.\nמספר הזמנה: " + orderId + "\nהנתונים נשלחו לאקטיב טרייל.");
-            
-            // איפוס ויזואלי
+            alert("נרכש בהצלחה!\nכמות: " + quantity + "\nסה\"כ: " + totalPrice + " ש\"ח");
             document.getElementById('buyBtn').style.display = 'none';
         }
     </script>
