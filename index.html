@@ -10,6 +10,12 @@
             _atsc_paq.push(['setUserId', '_atscid']); 
             _atsc_paq.push(['setTrackerUrl', '//atsc.activetrail.com/api/Track3']);
             _atsc_paq.push(['trackPageView']);
+            // מחלץ מייל מה-URL (אם קיים) ומבצע זיהוי למערכת כדי שהאוטומציה תדע למי לשלוח
+var urlParams = new URLSearchParams(window.location.search);
+var userEmail = urlParams.get('email');
+if (userEmail) {
+    _atsc_paq.push(['logRegisterUser', '', '', userEmail]);
+}
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
             g.type='text/javascript'; g.async=true; g.defer=true; g.src='//atsc.activetrail.com/Scripts/atsc3.min.js';
             s.parentNode.insertBefore(g,s);
