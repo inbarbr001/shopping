@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חנות בדיקות - אקטיב טרייל סופי</title>
+    
+    <script type='text/javascript'>
+        var _atsc_paq = _atsc_paq || [];
+        
+        (function () {
+            _atsc_paq.push(['setCookieDomain', 'atsc.activetrail.com']);
+            _atsc_paq.push(['setSiteId', '8a0c985f-73e4-4713-b3b6-6896715ed025']);
+            _atsc_paq.push(['setTrackerUrl', '//atsc.activetrail.com/api/Track3']);
+            
+            var savedEmail = localStorage.getItem('active_user_email');
+            if (savedEmail) { _atsc_paq.push(['setUserId', savedEmail]); }
+
+            _atsc_paq.push(['trackPageView']);
+
+            var atsc_d = document, atsc_g = atsc_d.createElement('script'), atsc_s = atsc_d.getElementsByTagName('script')[0];
+            atsc_g.type = 'text/javascript'; atsc_g.async = true; atsc_g.defer = true;
+            atsc_g.src = '//atsc.activetrail.com/Scripts/atsc3.min.js';
+            atsc_s.parentNode.insertBefore(atsc_g, atsc_s);
+        })();
+
+        function logPixelEvent(msg) {
+            const logBox = document.getElementById('debug-log');
+            if (logBox) {
+                logBox.innerHTML += `<div>✅ ${msg}</div>`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f6f8; color: #333; text-align: center; }
+        header { background: #1877f2; color: white; padding: 15px; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        .page { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .hidden { display: none; }
+        .product-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; display: inline-block; width: 200px; }
+        button { background: #42b72a; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        input { padding: 12px; width: 250px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
+        #debug-log { position: fixed; bottom: 10px; left: 10px; width: 250px; height: 150px; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-size: 12px; overflow-y: auto; text-align: left; direction: ltr; }
+    </style>
+</head>
+<body>
+
+<header><h1>🛍️ חנות הבדיקות - ActiveTrail</h1></header>
+
+<div class="container">
+    <div id="page-home" class="page">
+        <div id="login-section" style="background: #fff3cd; padding: 20px; border-radius: 8px; border: 1px solid #ffeeba;">
+            <h3>🔒 שלב הזיהוי (Register)</h3>
+            <input type="email" id="user-email" value="inbarb@activetrail.net">
+            <br>
+            <input type="tel" id="user-phone" value="0502052144">
+            <br>
+            <button onclick="loginUser()" style="background: #1877f2;">בצע logRegisterUser</button>
+        </div>
+
+        <div id="products-section" style="opacity: 0.3; pointer-events: none; margin-top: 30px;">
+            <hr>
+            <h2>🛒 הקטלוג שלנו</h2>
+            <div class="product-card" onclick="goToProductPage()">
+                <div style="width:100%; height:80px; background:#eee; line-height:80px; margin-bottom:10px;">📦</div>
+                <h3>נעלי ספורט PRO</h3>
+                <p>₪250.00</p>
+                <button>צפה במוצר</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-product" class="page hidden">
+        <h1>נעלי ספורט PRO</h1>
+        <div style="width:150px; height:150px; background:#eee; line-height:150px; margin:20px auto;">👟</div>
+        <h2>מחיר: ₪250.00</h2>
+        <button onclick="handleCartAndOrder()">🛒 קנה עכשיו</button>
+        <br><br>
+        <button onclick="goHome()" style="background: #666;">🔙 חזרה</button>
+    </div>
+
+    <div id="page-thankyou" class="page hidden">
+        <h1 style="color: green;">✅ הרכישה דווחה!</h1>
+        <p>האוטומציה אמורה לפעול כעת.</p>
+        <button onclick="localStorage.clear(); location.reload();" style="background: #666;">🔄 בדיקה חדשה</button>
+    </div>
+</div>
+
+<div id="debug-log"></div>
+
+<script>
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    function goHome() { showPage('page-home'); }
+
+    // פונקציית הרישום - מבוססת 100% על הדוקומנטציה של TypeId 8
+    function loginUser() {
+        var email = document.getElementById('user-email').value.trim();
+        var mobile = document.getElementById('user-phone').value.trim();
+        
+        // הגדרת משתני חובה
+        var externalId = 'ID-' + Date.now(); 
+        var externalName = 'User-' + email.split('@')[0]; 
+
+        if (email !== "") {
+            localStorage.setItem('active_user_email', email);
+            localStorage.setItem('active_user_phone', mobile);
+            localStorage.setItem('ext_id', externalId);
+
+            // 1. זיהוי בפיקסל
+            _atsc_paq.push(['setUserId', email]);
+
+            // 2. פקודת הרישום (זה מה שיפעיל את האוטומציה)
+            _atsc_paq.push(['logRegisterUser', 
+                externalId,    // חובה: externalId
+                externalName,  // חובה: externalName
+                email,         // email
+                mobile,        // mobile
+                { firstName: 'Inbar', lastName: 'ActiveTest' } // customData
+            ]);
+
+            // 3. דחיפה של הנתונים להפעלת האוטומציה מיד
+            _atsc_paq.push(['trackPageView', 'User_Registered']);
+
+            // UI
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('products-section').style.opacity = '1';
+            document.getElementById('products-section').style.pointerEvents = 'auto';
+            
+            logPixelEvent('Register Fired (TypeId 8)');
+        }
+    }
+
+    function goToProductPage() {
+        const email = localStorage.getItem('active_user_email');
+        if (email) { _atsc_paq.push(['setUserId', email]); }
+        showPage('page-product');
+    }
+
+    function handleCartAndOrder() {
+        const email = localStorage.getItem('active_user_email');
+        const phone = localStorage.getItem('active_user_phone');
+        const extId = localStorage.getItem('ext_id');
+        const total = 250;
+
+        if (email) { _atsc_paq.push(['setUserId', email]); }
+
+        _atsc_paq.push(['clearEcommerceCart']);
+        _atsc_paq.push(['addEcommerceItem', "PROD-100", "Shoes PRO", "Shoes", 250, 1]);
+        
+        _atsc_paq.push(['setCustomData', {
+            email: email,
+            mobile: phone,
+            ext1: extId
+        }]);
+
+        _atsc_paq.push(['trackEcommerceCartUpdate', total]);
+
+        const purchaseDate = Math.floor(Date.now() / 1000);
+        _atsc_paq.push(['trackEcommerceOrder', "ORD_" + Date.now(), total, total, 0, 0, 0, purchaseDate]);
+
+        logPixelEvent('Order & Ecommerce Sent');
+        setTimeout(() => { showPage('page-thankyou'); }, 600);
+    }
+</script>
+</body>
+</html>
