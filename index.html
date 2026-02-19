@@ -2,7 +2,6 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>בדיקת פיקסל - Get Color It</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
@@ -18,22 +17,35 @@
         })();
     </script>
 </head>
-<body style="font-family: Arial; text-align: center; padding-top: 100px;">
-    <h1>הדף של ענבר - בדיקת פיקסל</h1>
-    <button id="btn" style="padding: 20px 50px; font-size: 20px; background: green; color: white; border: none; cursor: pointer; border-radius: 10px;">שלם עכשיו ובדוק פיקסל</button>
-    
+<body style="font-family: Arial; text-align: center; padding: 50px;">
+    <h1>בדיקת זרימת אוטומציה - אקטיב טרייל</h1>
+    <p>לחץ על הכפתורים לפי הסדר:</p>
+
+    <button onclick="identifyUser()" style="display:block; width:200px; margin:10px auto; padding:15px; background:blue; color:white;">1. בצע כניסה (Login)</button>
+
+    <button onclick="addToCart()" style="display:block; width:200px; margin:10px auto; padding:15px; background:orange; color:white;">2. הוסף כרטיסים לסל</button>
+
+    <button onclick="completePurchase()" style="display:block; width:200px; margin:10px auto; padding:15px; background:green; color:white;">3. בצע רכישה סופית</button>
+
     <script>
-        document.getElementById('btn').onclick = function() {
-            var p = new URLSearchParams(window.location.search);
-            var email = p.get('email') || "test@test.com";
+        function identifyUser() {
+            var email = new URLSearchParams(window.location.search).get('email') || "test@test.com";
             _atsc_paq.push(['setUserId', email]);
-            _atsc_paq.push(['trackEcommerceOrder', 'ORD-' + Date.now(), 250]);
-            
-            this.innerText = "שולח נתונים...";
-            setTimeout(function() {
-                window.location.href = "https://getcolorit.com";
-            }, 1000);
-        };
+            console.log("User Identified: " + email);
+            alert("שלב 1: המשתמש זוהה");
+        }
+
+        function addToCart() {
+            _atsc_paq.push(['trackEcommerceCartUpdate', 150]); // סכום העגלה
+            console.log("Event: Add to Cart (150 ILS)");
+            alert("שלב 2: נשלח אירוע הוספה לסל");
+        }
+
+        function completePurchase() {
+            _atsc_paq.push(['trackEcommerceOrder', 'ORD-' + Date.now(), 150]);
+            console.log("Event: Purchase Completed");
+            alert("שלב 3: נשלחה רכישה! עכשיו תבדוק את האוטומציה");
+        }
     </script>
 </body>
 </html>
