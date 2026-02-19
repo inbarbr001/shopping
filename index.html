@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>רכישת כרטיסים - Tracker Mode</title>
+    <title>רכישת כרטיסים - Tracker Mode Pro</title>
     <script type='text/javascript'>
         var _atsc_paq = window._atsc_paq || [];
         (function () {
@@ -50,12 +50,12 @@
         const PRICE_PER_UNIT = 150;
         let currentQty = 1;
 
-        // --- אובייקט ה-TRACKER החדש ---
+        // --- אובייקט ה-TRACKER המקצועי ---
         const tracker = {
-            logRegisterUser: (email) => {
-                // שימוש במבנה המלא שדיברנו עליו לזיהוי מקסימלי
-                _atsc_paq.push(['logRegisterUser', '', '', email, '', {}]);
-                console.log("Tracker: User Registered -> " + email);
+            logRegisterUser: (extId, extName, email, mobile = '', customData = {}) => {
+                // העברת כל הפרמטרים בסדר הנכון: ID חיצוני, שם חיצוני, מייל, טלפון, ודאטה נוסף
+                _atsc_paq.push(['logRegisterUser', extId, extName, email, mobile, customData]);
+                console.log("Tracker: Registered", {extId, extName, email});
             },
             addEcommerceItem: (sku, name, category, price, quantity) => {
                 _atsc_paq.push(['addEcommerceItem', sku, name, category, price, quantity]);
@@ -66,7 +66,6 @@
                 console.log("Tracker: Cart Updated -> " + total);
             },
             trackEcommerceOrder: (orderId, total) => {
-                // ID, סה"כ, סכום ביניים, מס, משלוח, הנחה
                 _atsc_paq.push(['trackEcommerceOrder', orderId, total, total, 0, 0, 0]);
                 console.log("Tracker: Order Sent -> " + orderId);
             }
@@ -98,7 +97,6 @@
             localStorage.setItem('user_email', email);
             let finalTotal = currentQty * PRICE_PER_UNIT;
 
-            // שימוש ב-Tracker
             tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
             tracker.trackEcommerceCartUpdate(finalTotal);
             
@@ -111,8 +109,15 @@
             let finalTotal = currentQty * PRICE_PER_UNIT;
             let orderId = 'ORD-' + Date.now();
 
-            // 1. זיהוי משתמש (Register)
-            tracker.logRegisterUser(emailValue);
+            // נתונים חיצוניים לדוגמה (כפי שביקשת)
+            let myExtId = '12345678-1234-1234-1234-123456789012';
+            let myExtName = '987654321';
+
+            // 1. זיהוי משתמש מלא עם External ID ו-External Name
+            tracker.logRegisterUser(myExtId, myExtName, emailValue, '+1234567890', {
+                firstName: 'Inbar',
+                platform: 'WebStore'
+            });
 
             // 2. הוספת פריט להזמנה
             tracker.addEcommerceItem('TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty);
@@ -120,7 +125,7 @@
             // 3. שליחת ההזמנה הסופית
             tracker.trackEcommerceOrder(orderId, finalTotal);
 
-            alert("הרכישה הושלמה! Tracker שלח את כל הנתונים עבור: " + emailValue);
+            alert("הרכישה הושלמה בהצלחה עם זיהוי מלא!");
         }
     </script>
 </body>
