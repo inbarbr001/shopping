@@ -58,16 +58,26 @@
             alert("הסל עודכן: " + currentQty + " כרטיסים ב-" + finalTotal + " ש\"ח");
         }
 
-        function completePurchase() {
-            let finalTotal = currentQty * PRICE_PER_UNIT;
-            let orderId = 'ORD-' + Date.now();
+     function completePurchase() {
+    let finalTotal = currentQty * PRICE_PER_UNIT;
+    let orderId = 'ORD-' + Date.now();
 
-            _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
-            _atsc_paq.push(['trackEcommerceOrder', orderId, finalTotal]);
+    // שליחת הפריט
+    _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
+    
+    // שליחת ההזמנה עם כל הפרמטרים כדי למנוע undefined
+    // סדר: ID, סה"כ, סכום ביניים, מס, משלוח, הנחה
+    _atsc_paq.push(['trackEcommerceOrder', 
+        orderId,    // ec_id
+        finalTotal, // revenue
+        finalTotal, // ec_st (סכום ביניים)
+        0,          // ec_tx (מס)
+        0,          // ec_sh (משלוח)
+        0           // ec_dt (הנחה - כאן הופיע לך ה-undefined)
+    ]);
 
-            alert("בוצע! פופ-אפ אישור: נרכשו " + currentQty + " כרטיסים.");
-            document.getElementById('buyBtn').style.display = 'none';
-        }
+    alert("הרכישה נשלחה בהצלחה!");
+}
     </script>
 </body>
 </html>
