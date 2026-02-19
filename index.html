@@ -19,32 +19,37 @@
 </head>
 <body style="font-family: Arial; text-align: center; padding: 50px;">
     <h1>בדיקת זרימת אוטומציה - אקטיב טרייל</h1>
-    <p>לחץ על הכפתורים לפי הסדר:</p>
-
+    
     <button onclick="identifyUser()" style="display:block; width:200px; margin:10px auto; padding:15px; background:blue; color:white;">1. בצע כניסה (Login)</button>
-
     <button onclick="addToCart()" style="display:block; width:200px; margin:10px auto; padding:15px; background:orange; color:white;">2. הוסף כרטיסים לסל</button>
-
     <button onclick="completePurchase()" style="display:block; width:200px; margin:10px auto; padding:15px; background:green; color:white;">3. בצע רכישה סופית</button>
 
     <script>
+        // 1. זיהוי משתמש
         function identifyUser() {
             var email = new URLSearchParams(window.location.search).get('email') || "test@test.com";
             _atsc_paq.push(['setUserId', email]);
-            console.log("User Identified: " + email);
-            alert("שלב 1: המשתמש זוהה");
+            alert("שלב 1: המשתמש " + email + " זוהה במערכת");
         }
 
+        // 2. עדכון סל קניות (טריגר לעגלה נטושה באקטיב טרייל)
         function addToCart() {
-            _atsc_paq.push(['trackEcommerceCartUpdate', 150]); // סכום העגלה
-            console.log("Event: Add to Cart (150 ILS)");
-            alert("שלב 2: נשלח אירוע הוספה לסל");
+            _atsc_paq.push(['trackEcommerceCartUpdate', 150]); 
+            alert("שלב 2: הכרטיסים נוספו לסל (150 ש''ח)");
         }
 
+        // 3. ביצוע רכישה (טריגר לסיום רכישה באקטיב טרייל)
         function completePurchase() {
-            _atsc_paq.push(['trackEcommerceOrder', 'ORD-' + Date.now(), 150]);
-            console.log("Event: Purchase Completed");
-            alert("שלב 3: נשלחה רכישה! עכשיו תבדוק את האוטומציה");
+            var orderId = 'ORD-' + Date.now();
+            var price = 150;
+
+            // שליחת פריט ספציפי (חשוב לאוטומציה לפי מוצר)
+            _atsc_paq.push(['addEcommerceItem', 'SKU-TICKET', 'כרטיס להופעה', 'כרטיסים', price, 1]);
+            
+            // שליחת ההזמנה הכוללת
+            _atsc_paq.push(['trackEcommerceOrder', orderId, price]);
+
+            alert("שלב 3: הרכישה הושלמה בהצלחה!\nמספר הזמנה: " + orderId);
         }
     </script>
 </body>
