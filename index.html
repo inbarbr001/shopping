@@ -51,12 +51,17 @@
         }
 
         function addToCart() {
-            let finalTotal = currentQty * PRICE_PER_UNIT;
-            _atsc_paq.push(['trackEcommerceCartUpdate', finalTotal]);
-            
-            document.getElementById('buyBtn').style.display = 'block';
-            alert("הסל עודכן: " + currentQty + " כרטיסים ב-" + finalTotal + " ש\"ח");
-        }
+    let finalTotal = currentQty * PRICE_PER_UNIT;
+
+    // 1. חובה להוסיף את הפריט לסל לפני העדכון (כדי ש-ec_items לא יהיה ריק)
+    _atsc_paq.push(['addEcommerceItem', 'TICKET-100', 'כרטיס הופעה', 'כרטיסים', PRICE_PER_UNIT, currentQty]);
+
+    // 2. עדכון הסל
+    _atsc_paq.push(['trackEcommerceCartUpdate', finalTotal]);
+    
+    document.getElementById('buyBtn').style.display = 'block';
+    alert("הסל עודכן במערכת עם " + currentQty + " כרטיסים.");
+}
 
      function completePurchase() {
     let finalTotal = currentQty * PRICE_PER_UNIT;
